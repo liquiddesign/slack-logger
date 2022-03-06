@@ -50,7 +50,7 @@ class Logger extends \Tracy\Logger
 	{
 		$result = parent::log($message, $level);
 		
-		if ($this->slackHook === null || !Arrays::contains($this->levels, $level)) {
+		if (!$this->slackHook || !Arrays::contains($this->levels, $level)) {
 			return $result;
 		}
 		

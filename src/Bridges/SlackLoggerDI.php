@@ -35,7 +35,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 			->setType(Logger::class)
 			->setArguments([
 				'slackHook' => $config->slackHook,
-				'project' => $config->project,
+				'title' => $config->title,
 				'freezeInterval' => $config->freezeInterval,
 				'levels' => $config->levels,
 			]);
