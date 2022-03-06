@@ -54,17 +54,7 @@ class Logger extends \Tracy\Logger
 			return $result;
 		}
 		
-		if ($message instanceof \Throwable) {
-			$message = $message->getMessage() . ' #' . $message->getCode() . \PHP_EOL . $message->getFile() . ':' . $message->getLine();
-		} elseif (\is_array($message)) {
-			$message = (string) Arrays::first($message);
-		} else {
-			$message = (string) $message;
-		}
-		
-		if (Strings::length($message) > self::MAX_MESSAGE_LENGTH) {
-			$message = Strings::substring($message, 0, self::MAX_MESSAGE_LENGTH);
-		}
+		$message = self::parseMessage($message);
 		
 		$lockFile = $this->freezeInterval !== null ? Debugger::$logDirectory . '/slack-sent-' . \md5($message) : null;
 		
@@ -83,7 +73,7 @@ class Logger extends \Tracy\Logger
 			'json' => [
 				'attachments' => [
 				  [
-					'color' => $this->getColor($level),
+					'color' => self::getColor($level),
 					'pretext' => Strings::upper($level) . ': ' . $this->title,
 					'text' => $message,
 				  ],
@@ -91,6 +81,26 @@ class Logger extends \Tracy\Logger
 			],
 			'verify' => false,
 		]);
+	}
+	
+	/**
+	 * @param mixed $message
+	 */
+	private static function parseMessage($message): string
+	{
+		if ($message instanceof \Throwable) {
+			$message = $message->getMessage() . ' #' . $message->getCode() . \PHP_EOL . $message->getFile() . ':' . $message->getLine();
+		} elseif (\is_array($message)) {
+			$message = (string) Arrays::first($message);
+		} else {
+			$message = (string) $message;
+		}
+		
+		if (Strings::length($message) > self::MAX_MESSAGE_LENGTH) {
+			$message = Strings::substring($message, 0, self::MAX_MESSAGE_LENGTH);
+		}
+		
+		return $message;
 	}
 	
 	private static function getColor(string $level): ?string
