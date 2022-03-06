@@ -14,7 +14,7 @@ class Logger extends \Tracy\Logger
 {
 	private const MAX_MESSAGE_LENGTH = 4850;
 	
-	private ?string $slackHook;
+	private ?string $slackUrl;
 	
 	private string $title;
 	
@@ -26,16 +26,16 @@ class Logger extends \Tracy\Logger
 	private array $levels;
 	
 	/**
-	 * @param string|null $slackHook
+	 * @param string|null $slackUrl
 	 * @param string $title
 	 * @param string|null $freezeInterval
 	 * @param array<string> $levels
 	 */
-	public function __construct(?string $slackHook, string $title, ?string $freezeInterval, array $levels)
+	public function __construct(?string $slackUrl, string $title, ?string $freezeInterval, array $levels)
 	{
 		parent::__construct(Debugger::$logDirectory, Debugger::$email, Debugger::getBlueScreen());
 		
-		$this->slackHook = $slackHook;
+		$this->slackUrl = $slackUrl;
 		$this->title = $title;
 		$this->freezeInterval = $freezeInterval;
 		$this->levels = $levels;
@@ -50,7 +50,7 @@ class Logger extends \Tracy\Logger
 	{
 		$result = parent::log($message, $level);
 		
-		if (!$this->slackHook || !Arrays::contains($this->levels, $level)) {
+		if (!$this->slackUrl || !Arrays::contains($this->levels, $level)) {
 			return $result;
 		}
 		
@@ -60,16 +60,16 @@ class Logger extends \Tracy\Logger
 		
 		// phpcs:ignore
 		if ($lockFile === null || (@\filemtime($lockFile) <= \strtotime('-' . $this->freezeInterval) && @\file_put_contents($lockFile, 'sent'))) {
-			$this->sentToSlack($this->slackHook, $message, $level);
+			$this->sentToSlack($this->slackUrl, $message, $level);
 		}
 		
 		return $result;
 	}
 	
-	public function sentToSlack(string $hook, string $message, string $level): void
+	public function sentToSlack(string $url, string $message, string $level): void
 	{
 		$client = new Client();
-		$client->post($hook, [
+		$client->post($url, [
 			'json' => [
 				'attachments' => [
 				  [

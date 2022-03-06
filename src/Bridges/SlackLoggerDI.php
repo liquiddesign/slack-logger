@@ -15,7 +15,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
-			'slackHook' => Expect::string(),
+			'slackUrl' => Expect::string(),
 			'title' => Expect::string()->required(),
 			'freezeInterval' => Expect::string('24 hours'),
 			'levels' => Expect::array([ILogger::ERROR, ILogger::EXCEPTION, ILogger::CRITICAL]),
@@ -34,7 +34,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 		$builder->addDefinition('tracy.logger', new ServiceDefinition())
 			->setType(Logger::class)
 			->setArguments([
-				'slackHook' => $config->slackHook,
+				'slackUrl' => $config->slackUrl,
 				'title' => $config->title,
 				'freezeInterval' => $config->freezeInterval,
 				'levels' => $config->levels,
