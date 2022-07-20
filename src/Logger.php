@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SlackLogger;
 
 use GuzzleHttp\Client;
+use Nette\Http\Request;
 use Nette\Utils\Arrays;
 use Nette\Utils\Strings;
 use Tracy\Debugger;
@@ -20,6 +21,8 @@ class Logger extends \Tracy\Logger
 	
 	private ?string $freezeInterval;
 	
+	private Request $request;
+
 	/**
 	 * @var array<string>
 	 */
@@ -31,7 +34,7 @@ class Logger extends \Tracy\Logger
 	 * @param string|null $freezeInterval
 	 * @param array<string> $levels
 	 */
-	public function __construct(?string $slackUrl, string $title, ?string $freezeInterval, array $levels)
+	public function __construct(Request $request, ?string $slackUrl, string $title, ?string $freezeInterval, array $levels)
 	{
 		parent::__construct(Debugger::$logDirectory, Debugger::$email, Debugger::getBlueScreen());
 		
@@ -39,6 +42,7 @@ class Logger extends \Tracy\Logger
 		$this->title = $title;
 		$this->freezeInterval = $freezeInterval;
 		$this->levels = $levels;
+		$this->request = $request;
 	}
 	
 	/**
@@ -54,7 +58,7 @@ class Logger extends \Tracy\Logger
 			return $result;
 		}
 		
-		$message = self::parseMessage($message);
+		$message = $this->parseMessage($message);
 		
 		$lockFile = $this->freezeInterval !== null ? Debugger::$logDirectory . '/slack-sent-' . \md5($message) : null;
 		
@@ -72,11 +76,11 @@ class Logger extends \Tracy\Logger
 		$client->post($url, [
 			'json' => [
 				'attachments' => [
-				  [
-					'color' => self::getColor($level),
-					'pretext' => Strings::upper($level) . ': ' . $this->title,
-					'text' => $message,
-				  ],
+					[
+						'color' => self::getColor($level),
+						'pretext' => $this->title . ' - ' . $this->request->getUrl(),
+						'text' => 'ERROR: ' . $message . \PHP_EOL . 'IP: ' . $this->request->getRemoteAddress() . ' | ' . $this->request->getMethod(),
+					],
 				],
 			],
 			'verify' => false,
@@ -86,7 +90,7 @@ class Logger extends \Tracy\Logger
 	/**
 	 * @param mixed $message
 	 */
-	private static function parseMessage($message): string
+	private function parseMessage($message): string
 	{
 		if ($message instanceof \Throwable) {
 			$message = $message->getMessage() . ' #' . $message->getCode() . \PHP_EOL . $message->getFile() . ':' . $message->getLine();

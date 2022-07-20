@@ -34,6 +34,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 		$builder->addDefinition('tracy.logger', new ServiceDefinition())
 			->setType(Logger::class)
 			->setArguments([
+				'request' => '@http.request',
 				'slackUrl' => $config->slackUrl,
 				'title' => $config->title,
 				'freezeInterval' => $config->freezeInterval,
