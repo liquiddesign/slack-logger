@@ -19,6 +19,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 			'title' => Expect::string()->required(),
 			'freezeInterval' => Expect::string('24 hours'),
 			'levels' => Expect::array([ILogger::ERROR, ILogger::EXCEPTION, ILogger::CRITICAL]),
+			'omitExceptions' => Expect::array([]),
 		]);
 	}
 	
@@ -39,6 +40,7 @@ class SlackLoggerDI extends \Nette\DI\CompilerExtension
 				'title' => $config->title,
 				'freezeInterval' => $config->freezeInterval,
 				'levels' => $config->levels,
+				'omitExceptions' => $config->omitExceptions,
 			]);
 	}
 }

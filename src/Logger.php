@@ -29,12 +29,18 @@ class Logger extends \Tracy\Logger
 	private array $levels;
 	
 	/**
+	 * @var array<string>
+	 */
+	private array $omitExceptions;
+	
+	/**
 	 * @param string|null $slackUrl
 	 * @param string $title
 	 * @param string|null $freezeInterval
 	 * @param array<string> $levels
+	 * @param array<class-string> $omitExceptions
 	 */
-	public function __construct(Request $request, ?string $slackUrl, string $title, ?string $freezeInterval, array $levels)
+	public function __construct(Request $request, ?string $slackUrl, string $title, ?string $freezeInterval, array $levels, array $omitExceptions = [])
 	{
 		parent::__construct(Debugger::$logDirectory, Debugger::$email, Debugger::getBlueScreen());
 		
@@ -43,6 +49,7 @@ class Logger extends \Tracy\Logger
 		$this->freezeInterval = $freezeInterval;
 		$this->levels = $levels;
 		$this->request = $request;
+		$this->omitExceptions = $omitExceptions;
 	}
 	
 	/**
@@ -55,6 +62,10 @@ class Logger extends \Tracy\Logger
 		$result = parent::log($message, $level);
 		
 		if (!$this->slackUrl || !Arrays::contains($this->levels, $level)) {
+			return $result;
+		}
+		
+		if ($message instanceof \Throwable && Arrays::contains($this->omitExceptions, \get_class($message))) {
 			return $result;
 		}
 		
