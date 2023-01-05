@@ -97,6 +97,11 @@ class Logger extends \Tracy\Logger
 			'verify' => false,
 		]);
 	}
+
+	public function getSlackUrl(): ?string
+	{
+		return $this->slackUrl;
+	}
 	
 	/**
 	 * @param mixed $message
