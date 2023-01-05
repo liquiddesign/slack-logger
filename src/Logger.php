@@ -80,6 +80,11 @@ class Logger extends \Tracy\Logger
 		
 		return $result;
 	}
+
+	public function getSlackUrl(): ?string
+	{
+		return $this->slackUrl;
+	}
 	
 	public function sentToSlack(string $url, string $message, string $level): void
 	{
@@ -96,11 +101,6 @@ class Logger extends \Tracy\Logger
 			],
 			'verify' => false,
 		]);
-	}
-
-	public function getSlackUrl(): ?string
-	{
-		return $this->slackUrl;
 	}
 	
 	/**
