@@ -102,7 +102,28 @@ class Logger extends \Tracy\Logger
 			'verify' => false,
 		]);
 	}
-	
+
+	public function sentInfoToSlack(string $message): void
+	{
+		if (!$this->slackUrl) {
+			throw new \Exception('No URL specified');
+		}
+
+		$client = new Client();
+		$client->post($this->slackUrl, [
+			'json' => [
+				'attachments' => [
+					[
+						'color' => self::getColor(ILogger::INFO),
+						'pretext' => $this->title,
+						'text' => $message,
+					],
+				],
+			],
+			'verify' => false,
+		]);
+	}
+
 	/**
 	 * @param mixed $message
 	 */
