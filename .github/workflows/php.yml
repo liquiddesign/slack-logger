@@ -48,6 +48,9 @@ jobs:
       - name: Run phpcheck
         run: composer phpcheck8
 
+      - name: Run commit check
+        run: composer check-commit
+
       - uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}

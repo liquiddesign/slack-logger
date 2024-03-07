@@ -65,7 +65,7 @@ class Logger extends \Tracy\Logger
 			return $result;
 		}
 		
-		if ($message instanceof \Throwable && Arrays::contains($this->omitExceptions, \get_class($message))) {
+		if ($message instanceof \Throwable && Arrays::contains($this->omitExceptions, $message::class)) {
 			return $result;
 		}
 		
@@ -150,12 +150,15 @@ class Logger extends \Tracy\Logger
 			case ILogger::DEBUG:
 			case ILogger::INFO:
 				return '#444444';
+
 			case ILogger::WARNING:
 				return 'warning';
+
 			case ILogger::ERROR:
 			case ILogger::EXCEPTION:
 			case ILogger::CRITICAL:
 				return 'danger';
+
 			default:
 				return null;
 		}
